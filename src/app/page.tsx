@@ -1,65 +1,63 @@
-import Image from "next/image";
+import { AlertCircle } from "lucide-react";
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { CurrentWeatherCard } from "@/components/weather/CurrentWeatherCard";
+import { HourlyForecast } from "@/components/weather/HourlyForecast";
+import { WeeklyForecast } from "@/components/weather/WeeklyForecast";
+import { getCityById } from "@/lib/cities";
+import { getWeatherData } from "@/lib/weatherApi";
+
+interface PageProps {
+  searchParams: Promise<{ city?: string }>;
+}
+
+/**
+ * 날씨 앱 메인 페이지 (Server Component).
+ * URL 쿼리 파라미터 `city`를 읽어 해당 도시의 날씨 데이터를 서버에서 패칭한다.
+ * 기본 도시: 서울 (city=seoul)
+ */
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const cityId = params.city ?? "seoul";
+  const city = getCityById(cityId);
+
+  try {
+    const weatherData = await getWeatherData(city.nameEn);
+
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-6 space-y-4">
+          <CurrentWeatherCard data={weatherData.current} />
+          <HourlyForecast items={weatherData.hourly} />
+          <WeeklyForecast items={weatherData.daily} />
+        </main>
+        <Footer />
+      </div>
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-6">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-red-200 bg-red-50 p-10 text-center">
+            <AlertCircle className="h-10 w-10 text-red-400" />
+            <h2 className="text-lg font-semibold text-red-700">
+              날씨 데이터를 불러올 수 없습니다
+            </h2>
+            <p className="max-w-sm text-sm text-red-500">{message}</p>
+            <p className="text-xs text-slate-400">
+              .env.local 파일에 OPENWEATHER_API_KEY가 올바르게 설정되어 있는지
+              확인해 주세요.
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 }
