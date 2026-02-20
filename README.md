@@ -1,36 +1,356 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+#요구사항 명세서
 
-## Getting Started
+---
 
-First, run the development server:
+# 🌤 지역 선택 기반 날씨 웹앱 기능 명세서
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+*(UI: shadcn + Tailwind CSS 기반)*
+
+---
+
+## 1. 📌 프로젝트 개요
+
+### 1.1 목적
+
+사용자가 **지역을 선택하면 해당 지역의 실시간 날씨 및 예보 정보를 제공하는 웹앱** 개발
+
+### 1.2 개발 목표
+
+* 직관적이고 모던한 UI
+* 빠른 지역 선택 및 날씨 조회
+* 모바일/데스크탑 반응형 지원
+* API 기반 실시간 데이터 제공
+
+---
+
+## 2. 🏗 기술 스택
+
+| 구분      | 기술                            |
+| ------- | ----------------------------- |
+| UI 컴포넌트 | shadcn/ui                     |
+| 스타일링    | Tailwind CSS                  |
+| 프레임워크   | Next.js (App Router 권장)       |
+| 상태관리    | React useState / Zustand (선택) |
+| 날씨 API  | OpenWeatherMap API 또는 기상청 API |
+| 배포      | Vercel                        |
+
+---
+
+## 3. 📄 페이지 구조 (Single Page Application)
+
+```
+[ Header ]
+[ 지역 선택 영역 ]
+[ 현재 날씨 카드 ]
+[ 시간별 예보 ]
+[ 주간 예보 ]
+[ Footer ]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 4. 🧩 기능 명세
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 4.1 지역 선택 기능
 
-## Learn More
+### ✔ 기능 설명
 
-To learn more about Next.js, take a look at the following resources:
+* 사용자가 지역을 선택하면 해당 지역 날씨 조회
+* 기본값: 현재 위치 기반 자동 감지 (선택사항)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### ✔ UI 구성
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+* shadcn `Select`
+* 또는 `Combobox` (검색 가능)
 
-## Deploy on Vercel
+### ✔ 요구사항
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* 시/도 → 시/군/구 2단계 선택 (선택)
+* 선택 즉시 API 호출
+* 로딩 스피너 표시
+* 에러 발생 시 Toast 알림
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 4.2 현재 날씨 표시
+
+### ✔ 표시 항목
+
+* 지역명
+* 현재 온도
+* 체감 온도
+* 날씨 상태 (아이콘 포함)
+* 습도
+* 풍속
+* 강수 확률
+* 최저/최고 기온
+
+### ✔ UI
+
+* shadcn `Card`
+* 큰 온도 표시 (text-4xl 이상)
+* 날씨 상태에 따른 아이콘 변경
+* 배경 그라데이션 (맑음/비/눈 상태별 변경 가능)
+
+---
+
+## 4.3 시간별 예보 (24시간)
+
+### ✔ 기능
+
+* 3시간 단위 또는 1시간 단위 예보
+* 가로 스크롤 방식
+
+### ✔ UI
+
+* Horizontal Scroll Container
+* 작은 Card 컴포넌트 반복 렌더링
+
+### ✔ 표시 정보
+
+* 시간
+* 아이콘
+* 온도
+
+---
+
+## 4.4 주간 예보 (7일)
+
+### ✔ 기능
+
+* 7일간 예보 표시
+
+### ✔ 표시 항목
+
+* 날짜
+* 날씨 아이콘
+* 최저/최고 기온
+
+### ✔ UI
+
+* List 형태 또는 Grid 형태
+* Hover 시 상세정보 표시 (선택)
+
+---
+
+## 4.5 로딩 & 예외 처리
+
+### ✔ 로딩 처리
+
+* Skeleton UI 적용 (shadcn Skeleton)
+* API 요청 중 버튼 비활성화
+
+### ✔ 에러 처리
+
+* API 실패 시 Toast 메시지
+* "데이터를 불러올 수 없습니다"
+* 네트워크 오류 처리
+
+---
+
+## 5. 🎨 UI/UX 설계 기준
+
+### 5.1 디자인 컨셉
+
+* 미니멀 & 모던
+* 부드러운 애니메이션
+* 카드 기반 레이아웃
+
+### 5.2 반응형 설계
+
+| 구분      | 구성        |
+| ------- | --------- |
+| Mobile  | 세로 스택 구조  |
+| Tablet  | 2열 Grid   |
+| Desktop | 3~4열 Grid |
+
+### 5.3 색상 정책
+
+* 기본: Neutral Gray
+* Primary: Sky Blue
+* 날씨 상태별 배경 색상 변경 가능
+
+---
+
+## 6. 🔌 API 연동 명세
+
+### 6.1 요청 방식
+
+* REST API
+* fetch 또는 axios 사용
+
+### 6.2 필수 데이터
+
+```json
+{
+  "location": "Seoul",
+  "temp": 3.2,
+  "feels_like": 1.1,
+  "humidity": 60,
+  "wind_speed": 3.4,
+  "weather": "Cloudy",
+  "icon": "04d"
+}
+```
+
+### 6.3 환경 변수 관리
+
+* `.env.local` 파일에 API KEY 저장
+* 서버 컴포넌트에서 호출 권장 (보안)
+
+---
+
+## 7. 📁 폴더 구조 예시
+
+```
+/app
+  /components
+    WeatherCard.tsx
+    HourlyForecast.tsx
+    WeeklyForecast.tsx
+    LocationSelect.tsx
+  /lib
+    weatherApi.ts
+  /types
+    weather.ts
+  page.tsx
+```
+
+---
+
+
+## 9. 📊 성능 요구사항
+
+* 첫 화면 로딩 2초 이내
+* API 응답 캐싱 (SWR 또는 React Query)
+* Lighthouse 90점 이상 목표
+
+---
+
+## 10. 🔐 보안 요구사항
+
+* API KEY 클라이언트 노출 금지
+* HTTPS 환경 배포
+* 입력값 검증
+
+---
+
+# 📌 최종 개발 요청 요약
+
+* shadcn + Tailwind 기반 모던 UI
+* 지역 선택 → API 호출 → 실시간 날씨 렌더링
+* 현재/시간별/주간 예보 구현
+* 로딩/에러 처리 필수
+* 반응형 지원
+* 서버 측 API 호출 구조 권장
+
+---
+
+---
+
+# 📋 개발 구현 단계
+
+## 현재 구현 상태
+
+| 항목 | 상태 |
+| --- | --- |
+| Next.js 16 (App Router) | ✅ 설치됨 |
+| Tailwind CSS v4 | ✅ 설치됨 |
+| TypeScript | ✅ 설치됨 |
+| shadcn/ui | ✅ 설치됨 |
+| 날씨 API 연동 | ✅ 유틸 구현됨 (API 키 입력 필요) |
+| 컴포넌트 전체 | ✅ 구현됨 |
+| `.env.local` | ✅ 생성됨 |
+
+---
+
+## Phase 1 — 프로젝트 기반 세팅 ✅ 완료
+
+> 핵심 라이브러리 설치 및 환경 구성
+
+- [x] **shadcn/ui 초기화** (`npx shadcn@latest init`)
+- [x] **필요 shadcn 컴포넌트 추가** (`Card`, `Select`, `Skeleton`, `Sonner(Toast)`, `Badge`, `Button`, `Command`, `Popover`)
+- [x] **`.env.local` 파일 생성** — OpenWeatherMap API 키 등록
+- [x] **폴더 구조 생성** — `src/components/weather/`, `src/components/layout/`, `src/lib/`, `src/types/`, `src/hooks/`
+
+---
+
+## Phase 2 — 타입 정의 & API 유틸 구현 ✅ 완료
+
+> 데이터 흐름의 뼈대를 만드는 단계
+
+- [x] **`src/types/weather.ts`** — 날씨 데이터 타입 정의 (OWM Raw 타입 + 앱 내부 가공 타입)
+- [x] **`src/lib/cities.ts`** — 주요 한국 도시 목록 (15개 도시)
+- [x] **`src/lib/weatherApi.ts`** — OpenWeatherMap API 호출 함수 (서버 전용)
+  - 현재 날씨: `GET /weather`
+  - 3시간 단위 5일 예보: `GET /forecast`
+  - 시간별(24h) / 일별(7일) 데이터 가공 로직 포함
+
+---
+
+## Phase 3 — 서버 사이드 데이터 패칭 구조 구현 ✅ 완료
+
+> Next.js App Router의 서버 컴포넌트로 API 호출
+
+- [x] **`src/app/page.tsx` 개편** — Server Component로 날씨 데이터 fetch 후 하위 컴포넌트에 props 전달
+- [x] **`src/app/api/weather/route.ts`** — 지역 변경 시 클라이언트에서 호출할 API Route 구현
+- [x] **`src/lib/weatherUtils.ts`** — 시간/날짜 포매터, 아이콘 URL, 배경 그라데이션 헬퍼
+
+---
+
+## Phase 4 — 핵심 UI 컴포넌트 구현 ✅ 완료
+
+> 각 섹션 컴포넌트 구현
+
+- [x] **`LocationSelect.tsx`** — shadcn `Combobox` 기반 지역 검색·선택 (nuqs URL 연동)
+- [x] **`CurrentWeatherCard.tsx`** — 현재 날씨 카드 (온도, 체감온도, 습도, 풍속, 아이콘, 배경 그라데이션)
+- [x] **`HourlyForecast.tsx`** — 24시간 가로 스크롤 예보 카드
+- [x] **`WeeklyForecast.tsx`** — 7일 주간 예보 리스트
+
+---
+
+## Phase 5 — 레이아웃 & 페이지 조립 ✅ 완료
+
+> 컴포넌트를 페이지에 조합
+
+- [x] **`Header.tsx`** — 앱 로고, 지역 선택 Combobox 포함
+- [x] **`Footer.tsx`** — OpenWeatherMap 출처 표기
+- [x] **`src/app/layout.tsx` 개편** — NuqsAdapter, Toaster, 글로벌 폰트 적용
+- [x] **`src/app/page.tsx`** — 전체 레이아웃 조립 (Header + 날씨카드 + 예보 + Footer)
+- [x] **`src/app/loading.tsx`** — 도시 전환 시 스켈레톤 로딩 UI
+- [x] **`src/app/error.tsx`** — 페이지 레벨 Error Boundary
+
+---
+
+## Phase 6 — 로딩 & 에러 처리
+
+> UX 완성
+
+- [ ] **`WeatherSkeleton.tsx`** — shadcn `Skeleton` 기반 로딩 UI
+- [ ] **`src/app/error.tsx`** — Error Boundary
+- [ ] **`src/app/loading.tsx`** — 페이지 로딩 fallback
+- [ ] **Toast 에러 알림** — API 실패 시 `Sonner` 토스트 표시
+
+---
+
+## Phase 7 — 반응형 & 스타일 완성
+
+> 디자인 마무리
+
+- [ ] 모바일(세로 스택) / 태블릿(2열) / 데스크탑(3~4열) 반응형 적용
+- [ ] 날씨 상태별 배경 그라데이션 (맑음 → 파랑, 비 → 회색, 눈 → 흰색 계열)
+- [ ] 부드러운 전환 애니메이션 (`transition`, `animate-*`)
+
+---
+
+## Phase 8 — 최적화 & 배포
+
+> 마무리
+
+- [ ] API 응답 캐싱 전략 적용 (`fetch` revalidate 옵션)
+- [ ] `next/image`로 이미지 최적화
+- [ ] Lighthouse 성능 점검
+- [ ] **Vercel 배포** + 환경변수 등록
+
+---#   w e a t h e r _ a p p  
+ 
